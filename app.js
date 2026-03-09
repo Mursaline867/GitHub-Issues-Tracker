@@ -71,6 +71,70 @@ const renderLogin = () => {
   document.getElementById('login-form').addEventListener('submit', handleLogin);
 };
 
+const renderDashboard = () => {
+  setFiltered();
+  app.innerHTML = `
+    <div class="min-h-screen">
+      <nav class="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
+        <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+          <div class="flex items-center gap-3">
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl"><img src="./assets/github-logo.png" alt="GitHub" class="h-9 w-9"></div>
+            <div>
+              <h1 class="text-xl font-bold text-slate-900 sm:text-2xl">GitHub Issues Tracker</h1>
+              <p class="text-sm text-slate-500">Monitor, search, and review issue details</p>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <form id="search-form" class="flex w-full gap-2 sm:w-auto">
+              <input id="search-input" type="text" value="${escapeHtml(state.searchTerm)}" placeholder="Search issues..." class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand/10 sm:min-w-[290px]">
+              <button type="submit" class="rounded-2xl bg-brand px-5 py-3 font-semibold text-white hover:bg-brandDark">Search</button>
+            </form>
+            <button id="logout-btn" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700 hover:bg-slate-100">Logout</button>
+          </div>
+        </div>
+      </nav>
+
+      <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <section class="mb-6 rounded-[32px] bg-white p-5 shadow-soft sm:p-6">
+          <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div class="flex flex-wrap gap-2">
+                <button data-tab="all" class="tab-btn rounded-full px-5 py-2.5 text-sm font-semibold transition ${tabClass('all')}">All</button>
+                <button data-tab="open" class="tab-btn rounded-full px-5 py-2.5 text-sm font-semibold transition ${tabClass('open')}">Open</button>
+                <button data-tab="closed" class="tab-btn rounded-full px-5 py-2.5 text-sm font-semibold transition ${tabClass('closed')}">Closed</button>
+              </div>
+
+              <div class="mt-6 flex items-center gap-4">
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10"><img src="assets/aperture.png" alt="Tracker" class="h-9 w-9"></div>
+                <div>
+                  <h2 class="text-3xl font-extrabold text-slate-900">${state.filteredIssues.length} Issues</h2>
+                  <p class="mt-1 text-[15px] text-slate-500">Track and manage your project issues</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-5 text-lg">
+              <div class="flex items-center gap-2 text-slate-700">${statusDot('open')}<span class="text-sm">Open</span></div>
+              <div class="flex items-center gap-2 text-slate-700">${statusDot('closed')}<span class="text-sm">Closed</span></div>
+            </div>
+          </div>
+        </section>
+
+        
+
+        <section class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          ${state.loading ? renderLoading() : state.filteredIssues.length ? state.filteredIssues.map(renderCard).join('') : renderEmpty()}
+        </section>
+      </main>
+
+      ${renderModal()}
+    </div>
+  `;
+
+  bindDashboardEvents();
+};
+
 
 const handleLogin = (event) => {
   event.preventDefault();
