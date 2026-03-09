@@ -5,11 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GitHub Issues Tracker</title>
 
+  <!-- Geist font -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/geist@5.2.6/index.css"/>
 
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif']
+          },
+          colors: {
+            brand: '#7C3AED',
+            brandDark: '#6D28D9'
+          },
+          boxShadow: {
+            soft: '0 20px 50px rgba(15, 23, 42, 0.08)',
+            card: '0 10px 30px rgba(15, 23, 42, 0.06)'
+          }
+        }
+      }
+    };
+  </script>
 </head>
-<body class="bg-slate-100 text-slate-900 antialiased font-sans">
+  <body class="bg-slate-100 text-slate-900 antialiased font-sans">
     <div id="app"></div>
     <script src="app.js"></script>
   </body>

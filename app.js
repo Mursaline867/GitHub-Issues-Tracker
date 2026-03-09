@@ -463,3 +463,75 @@ const handleLogout = () => {
   state.activeTab = 'all';
   renderApp();
 };
+
+const fetchIssues = async () => {
+  state.loading = true;
+  state.error = '';
+  renderDashboard();
+
+  try {
+    const response = await fetch(`${API_BASE}/issues`);
+    if (!response.ok) throw new Error('API request failed. Loaded fallback issue data instead.');
+    const result = await response.json();
+    state.issues = (result.data || []).map(normalizeIssue);
+    state.source = 'api';
+  } catch (error) {
+    state.issues = FALLBACK_ISSUES.map(normalizeIssue);
+    state.source = 'fallback';
+    state.error = error.message || 'Loaded fallback data.';
+  } finally {
+    state.loading = false;
+    setFiltered();
+    renderDashboard();
+  }
+};
+
+const fetchIssueById = async (id) => {
+  const fallbackIssue = state.issues.find((issue) => String(issue.id) === String(id)) || null;
+
+  try {
+    const response = await fetch(`${API_BASE}/issue/${id}`);
+    if (!response.ok) throw new Error('Unable to load issue details from API. Showing local data.');
+    const result = await response.json();
+    state.selectedIssue = normalizeIssue(result.data || fallbackIssue || {});
+  } catch (error) {
+    state.selectedIssue = fallbackIssue;
+    state.error = error.message;
+  }
+
+  renderDashboard();
+};
+
+const handleSearch = async (event) => {
+  event.preventDefault();
+  const input = document.getElementById('search-input');
+  state.searchTerm = input.value.trim();
+
+  if (!state.searchTerm) {
+    setFiltered();
+    renderDashboard();
+    return;
+  }
+
+  state.loading = true;
+  state.error = '';
+  renderDashboard();
+
+  try {
+    const response = await fetch(`${API_BASE}/issues/search?q=${encodeURIComponent(state.searchTerm)}`);
+    if (!response.ok) throw new Error('Search API unavailable. Searched locally instead.');
+    const result = await response.json();
+    state.filteredIssues = (result.data || []).map(normalizeIssue);
+    if (state.activeTab !== 'all') {
+      state.filteredIssues = state.filteredIssues.filter((issue) => issue.status === state.activeTab);
+    }
+    state.source = 'api';
+  } catch (error) {
+    state.filteredIssues = getVisibleIssues();
+    state.source = 'fallback';
+    state.error = error.message;
+  } finally {
+    state.loading = false;
+    renderDashboard();
+  }
+};
