@@ -146,6 +146,7 @@ const getPriorityPill = (priority) => {
 
 const getLabelPill = (label) => {
   const value = (label || '').toLowerCase();
+
   const map = {
     bug: 'border border-rose-300 bg-rose-50 text-rose-500',
     'help wanted': 'border border-amber-400 bg-amber-50 text-amber-500',
@@ -153,26 +154,33 @@ const getLabelPill = (label) => {
     documentation: 'border border-sky-300 bg-sky-50 text-sky-500',
     'good first issue': 'border border-lime-300 bg-lime-50 text-lime-600'
   };
-  const icon = value === 'enhancement' ? '✧' : '⊕';
-  return `<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium uppercase ${map[value] || 'border border-slate-300 bg-slate-50 text-slate-500'}">${icon} ${escapeHtml(label)}</span>`;
+
+  let icon = '';
+
+  if (value === 'enhancement') {
+    icon = '<img src="icon/Sparkle.png" class="h-3 w-3" alt="enhancement">';
+  } 
+  else if (value === 'bug') {
+    icon = '<img src="icon/BugDroid.png" class="h-3 w-3" alt="bug">';
+  } 
+  else if (value === 'help wanted') {
+    icon = '<img src="icon/Lifebuoy.png" class="h-3 w-3" alt="help">';
+  }
+
+  return `<span class="inline-flex items-center gap-0.5 rounded-full px-2.5 py-1 text-[11px] font-medium uppercase ${map[value] || 'border border-slate-300 bg-slate-50 text-slate-500'}">
+  ${icon} ${escapeHtml(label)}</span>`;
 };
 
 const getStatusIcon = (status) => {
   if (status === 'closed') {
     return `
       <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-violet-100 text-violet-500">
-        <svg viewBox="0 0 20 20" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="10" cy="10" r="7"></circle>
-          <path d="M7 10l2 2 4-4"></path>
-        </svg>
+        <img src="assets/closed-status.png" class="h-5.5 w-5.5" alt="status icon">
       </span>`;
   }
   return `
     <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-500">
-      <svg viewBox="0 0 20 20" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="10" cy="10" r="7"></circle>
-        <circle cx="10" cy="10" r="2" fill="currentColor" stroke="none"></circle>
-      </svg>
+      <img src="assets/open-status.png" class="h-5.5 w-5.5" alt="status icon">
     </span>`;
 };
 
