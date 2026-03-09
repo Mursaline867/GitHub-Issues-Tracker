@@ -248,6 +248,22 @@ const renderLogin = () => {
   document.getElementById('login-form').addEventListener('submit', handleLogin);
 };
 
+const renderLoading = () => `
+  <div class="col-span-full flex min-h-[260px] items-center justify-center rounded-[28px] bg-white shadow-card">
+    <div class="text-center">
+      <div class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-brand/20 border-t-brand"></div>
+      <p class="mt-4 text-sm font-medium text-slate-500">Loading issues...</p>
+    </div>
+  </div>
+`;
+
+const renderEmpty = () => `
+  <div class="col-span-full rounded-[28px] border border-dashed border-slate-300 bg-white p-10 text-center shadow-card">
+    <h3 class="text-xl font-bold text-slate-900">No issues found</h3>
+    <p class="mt-2 text-sm text-slate-500">Try a different search term or change the current tab.</p>
+  </div>
+`;
+
 const renderCard = (issue) => {
   const isOpen = issue.status === 'open';
   const topBorder = isOpen ? 'border-t-emerald-500' : 'border-t-violet-500';
@@ -276,6 +292,82 @@ const renderCard = (issue) => {
         <p class="mt-1">${formatDate(issue.createdAt)}</p>
       </div>
     </article>
+  `;
+};
+
+const renderModal = () => {
+  if (!state.selectedIssue) return '';
+
+  const issue = state.selectedIssue;
+  const isOpen = issue.status === 'open';
+
+  const statusBadge = isOpen
+    ? `<span class="inline-flex items-center rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white">Opened</span>`
+    : `<span class="inline-flex items-center rounded-full bg-violet-500 px-3 py-1 text-xs font-semibold text-white">Closed</span>`;
+
+  const priorityMap = {
+    high: 'bg-rose-500 text-white',
+    medium: 'bg-amber-400 text-white',
+    low: 'bg-slate-300 text-slate-700'
+  };
+
+  return `
+    <div id="issue-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 px-4 py-6">
+      <div class="w-full max-w-[670px] rounded-md border-2 border-sky-500 bg-white shadow-2xl">
+        <div class="m-6 border border-dashed border-sky-400 p-0">
+          <div class="p-7">
+            <h2 class="text-[22px] font-extrabold leading-tight text-slate-800">
+              ${escapeHtml(issue.title)}
+            </h2>
+
+            <div class="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-500">
+              ${statusBadge}
+              <span>•</span>
+              <span>Opened by ${escapeHtml(issue.author)}</span>
+              <span>•</span>
+              <span>${formatDate(issue.createdAt)}</span>
+            </div>
+
+            <div class="mt-5 flex flex-wrap gap-2">
+              ${(issue.labels || []).length
+                ? issue.labels.map((label) => getLabelPill(label)).join('')
+                : '<span class="text-sm text-slate-400">No labels</span>'}
+            </div>
+
+            <p class="mt-6 text-[15px] leading-7 text-slate-500">
+              ${escapeHtml(issue.description)}
+            </p>
+
+            <div class="mt-6 grid gap-4 bg-slate-50 p-5 sm:grid-cols-2">
+              <div>
+                <p class="text-[15px] text-slate-500">Assignee:</p>
+                <p class="mt-1 text-[28px] font-bold leading-none text-slate-800 sm:text-[18px]">
+                  ${escapeHtml(issue.assignee || 'Unassigned')}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-[15px] text-slate-500">Priority:</p>
+                <div class="mt-2">
+                  <span class="inline-flex rounded-full px-4 py-1 text-xs font-bold uppercase ${priorityMap[issue.priority] || priorityMap.medium}">
+                    ${escapeHtml(issue.priority)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end px-7 pb-7">
+            <button
+              id="close-modal"
+              class="rounded-sm bg-gradient-to-b from-brand to-blue-700 px-4 py-2 text-base font-bold text-white shadow"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   `;
 };
 
