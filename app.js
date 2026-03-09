@@ -70,3 +70,32 @@ const renderLogin = () => {
 
   document.getElementById('login-form').addEventListener('submit', handleLogin);
 };
+
+
+const handleLogin = (event) => {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+  const username = String(formData.get('username') || '').trim();
+  const password = String(formData.get('password') || '').trim();
+  const errorBox = document.getElementById('login-error');
+
+  if (username === DEMO_CREDENTIALS.username && password === DEMO_CREDENTIALS.password) {
+    localStorage.setItem(STORAGE_KEY, 'true');
+    state.isAuthenticated = true;
+    state.error = '';
+    initializeDashboard();
+    return;
+  }
+
+  errorBox.textContent = 'Invalid credentials. Use admin / admin123.';
+  errorBox.classList.remove('hidden');
+};
+
+const handleLogout = () => {
+  localStorage.removeItem(STORAGE_KEY);
+  state.isAuthenticated = false;
+  state.selectedIssue = null;
+  state.searchTerm = '';
+  state.activeTab = 'all';
+  renderApp();
+};
