@@ -359,10 +359,7 @@ const renderModal = () => {
 
           <div class="flex justify-end px-7 pb-7">
             <button
-              id="close-modal"
-              class="rounded-sm bg-gradient-to-b from-brand to-blue-700 px-4 py-2 text-base font-bold text-white shadow"
-            >
-              Close
+              id="close-modal" class="rounded-sm bg-gradient-to-b from-brand to-blue-700 px-4 py-2 text-base font-bold text-white shadow">Close
             </button>
           </div>
         </div>
@@ -420,8 +417,6 @@ const renderDashboard = () => {
             </div>
           </div>
         </section>
-
-        
 
         <section class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           ${state.loading ? renderLoading() : state.filteredIssues.length ? state.filteredIssues.map(renderCard).join('') : renderEmpty()}
