@@ -67,6 +67,115 @@ const state = {
   source: 'api'
 };
 
+const app = document.getElementById('app');
+
+const escapeHtml = (value = '') => String(value)
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#39;');
+
+const capitalize = (text = '') => text ? text.charAt(0).toUpperCase() + text.slice(1) : 'N/A';
+const formatDate = (value) => {
+  if (!value) return 'N/A';
+  return new Date(value).toLocaleDateString('en-GB');
+};
+
+const tabClass = (tab) => state.activeTab === tab
+  ? 'bg-brand text-white shadow-lg shadow-violet-200'
+  : 'bg-white text-slate-600 hover:bg-slate-100';
+
+const normalizeIssue = (issue) => ({
+  id: issue.id,
+  title: issue.title || 'Untitled issue',
+  description: issue.description || 'No description provided.',
+  status: (issue.status || 'open').toLowerCase(),
+  labels: Array.isArray(issue.labels) ? issue.labels : issue.label ? [issue.label] : [],
+  priority: (issue.priority || 'medium').toLowerCase(),
+  author: issue.author || 'Unknown',
+  assignee: issue.assignee || '',
+  createdAt: issue.createdAt || issue.created_at || '',
+  updatedAt: issue.updatedAt || issue.updated_at || ''
+});
+
+const statusDot = (status) => status === 'open'
+  ? '<span class="inline-block h-2.5 w-2.5 rounded-full bg-emerald-500"></span>'
+  : '<span class="inline-block h-2.5 w-2.5 rounded-full bg-violet-500"></span>';
+
+const getCounts = (status) => status === 'all'
+  ? state.issues.length
+  : state.issues.filter((item) => item.status === status).length;
+
+const getVisibleIssues = () => {
+  let list = [...state.issues];
+
+  if (state.activeTab !== 'all') {
+    list = list.filter((item) => item.status === state.activeTab);
+  }
+
+  if (state.searchTerm.trim()) {
+    const term = state.searchTerm.toLowerCase();
+    list = list.filter((item) => [
+      item.title,
+      item.description,
+      item.author,
+      item.assignee,
+      item.priority,
+      item.status,
+      ...(item.labels || [])
+    ].join(' ').toLowerCase().includes(term));
+  }
+
+  return list;
+};
+
+const setFiltered = () => {
+  state.filteredIssues = getVisibleIssues();
+};
+
+const getPriorityPill = (priority) => {
+  const normalized = (priority || '').toLowerCase();
+  const map = {
+    high: 'bg-rose-100 text-rose-400',
+    medium: 'bg-amber-100 text-amber-500',
+    low: 'bg-slate-100 text-slate-400'
+  };
+  return `<span class="rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide ${map[normalized] || map.medium}">${escapeHtml(normalized || 'medium')}</span>`;
+};
+
+const getLabelPill = (label) => {
+  const value = (label || '').toLowerCase();
+  const map = {
+    bug: 'border border-rose-300 bg-rose-50 text-rose-500',
+    'help wanted': 'border border-amber-400 bg-amber-50 text-amber-500',
+    enhancement: 'border border-emerald-300 bg-emerald-50 text-emerald-500',
+    documentation: 'border border-sky-300 bg-sky-50 text-sky-500',
+    'good first issue': 'border border-lime-300 bg-lime-50 text-lime-600'
+  };
+  const icon = value === 'enhancement' ? '✧' : '⊕';
+  return `<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium uppercase ${map[value] || 'border border-slate-300 bg-slate-50 text-slate-500'}">${icon} ${escapeHtml(label)}</span>`;
+};
+
+const getStatusIcon = (status) => {
+  if (status === 'closed') {
+    return `
+      <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-violet-100 text-violet-500">
+        <svg viewBox="0 0 20 20" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="10" cy="10" r="7"></circle>
+          <path d="M7 10l2 2 4-4"></path>
+        </svg>
+      </span>`;
+  }
+  return `
+    <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-500">
+      <svg viewBox="0 0 20 20" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="10" cy="10" r="7"></circle>
+        <circle cx="10" cy="10" r="2" fill="currentColor" stroke="none"></circle>
+      </svg>
+    </span>`;
+};
+
 const renderLogin = () => {
   app.innerHTML = `
     <section class="min-h-screen bg-slate-100 px-4 py-8 sm:px-6 lg:px-8">
