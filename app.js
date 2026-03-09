@@ -435,7 +435,6 @@ const renderDashboard = () => {
   bindDashboardEvents();
 };
 
-
 const handleLogin = (event) => {
   event.preventDefault();
   const formData = new FormData(event.target);
@@ -535,3 +534,54 @@ const handleSearch = async (event) => {
     renderDashboard();
   }
 };
+
+const bindDashboardEvents = () => {
+  document.getElementById('logout-btn')?.addEventListener('click', handleLogout);
+  document.getElementById('search-form')?.addEventListener('submit', handleSearch);
+
+  document.querySelectorAll('.tab-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.activeTab = button.dataset.tab;
+      setFiltered();
+      renderDashboard();
+    });
+  });
+
+  document.querySelectorAll('.issue-card').forEach((card) => {
+    const open = () => fetchIssueById(card.dataset.id);
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        open();
+      }
+    });
+  });
+
+  document.getElementById('close-modal')?.addEventListener('click', () => {
+    state.selectedIssue = null;
+    renderDashboard();
+  });
+
+  document.getElementById('issue-modal')?.addEventListener('click', (event) => {
+    if (event.target.id === 'issue-modal') {
+      state.selectedIssue = null;
+      renderDashboard();
+    }
+  });
+};
+
+const initializeDashboard = async () => {
+  renderDashboard();
+  await fetchIssues();
+};
+
+const renderApp = () => {
+  if (state.isAuthenticated) {
+    initializeDashboard();
+  } else {
+    renderLogin();
+  }
+};
+
+renderApp();
